@@ -4,6 +4,7 @@ import (
     "context"
     "fmt"
     "log"
+    "time"
     "encoding/json"
     kafka "github.com/segmentio/kafka-go"
 )
@@ -13,8 +14,9 @@ func getKafkaReader(kafkaURL, topic, groupID string) *kafka.Reader {
 		Brokers:  []string{kafkaURL},
 		GroupID:  groupID,
 		Topic:    topic,
-		MinBytes: 10e3, // 10KB
+		MinBytes: 51, // 10KB
 		MaxBytes: 10e6, // 10MB
+		MaxWait: 100 * time.Millisecond,
 	})
 }
 
@@ -30,11 +32,10 @@ func main() {
 		if err != nil {
 			log.Fatalln(err)
 		}
-		fmt.Printf("msg: ", m.Time)
-		fmt.Printf("message at topic:%v partition:%v offset:%v	%s = %s\n", m.Topic, m.Partition, m.Offset, string(m.Key), string(m.Value))
                 json.Unmarshal([]byte(m.Value),  &result)
-		fmt.Printf("message: %v\n", result["button"])
-
+		if int(result["button"].(float64)) == 1 {
+			fmt.Printf("Yeah detection @ %v\n", m.Time.Format("Jan _2 15:04:05 2006"));
+		}
 	}
 }
 
