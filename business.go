@@ -51,7 +51,12 @@ func main() {
 		}
                 json.Unmarshal([]byte(m.Value),  &result)
 		if int(result["button"].(float64)) == 1 {
-			business_map := map[string]string{"event_type": "dection", "Device_ID": result["Device_ID"].(string), "Severity": "High",
+			level := "0"
+			if result["x"].(float64) < -16000.0 {
+			    level = "1"
+			    fmt.Printf("Severe!\n")
+		        }
+			business_map := map[string]string{"event_type": "dection", "Device_ID": result["Device_ID"].(string), "Severity": level,
 					      "timestamp": m.Time.Format(time.RFC3339)}
                         business_val, _ := json.Marshal(business_map)
 			msg := kafka.Message{ Key: []byte(fmt.Sprintf("device-%s", result["Device_ID"])),
