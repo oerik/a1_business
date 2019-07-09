@@ -1,3 +1,13 @@
+// Erik Oomen, jul 2019
+//
+// Receives streaming event on topic 'sensors' and applies some basic
+// business rules to generate a warning or an error on the 'business' topic.
+// The rules are:
+//   * Readable display (horizontal): Button press -> warning
+//   * Turn the cube so the button is on the bottom: Button press -> error.
+//
+// Warning, not written for stability or performance.
+
 package main
 
 import (
@@ -50,6 +60,9 @@ func main() {
 			log.Fatalln(err)
 		}
                 json.Unmarshal([]byte(m.Value),  &result)
+		// 
+		// Values emperical determined
+		// 
 		if int(result["button"].(float64)) == 1 {
 			level := "0"
 			if result["x"].(float64) < -16000.0 {
